@@ -1,7 +1,7 @@
 
 import { NativeModules, Platform, NativeEventEmitter } from 'react-native';
 
-const { RNIapIos, RNIapModule } = NativeModules;
+const { RNIapIos, RNIapCombinedModule, RNIapAndroidModule, RNIapAmazonModule } = NativeModules;
 
 const ANDROID_ITEM_TYPE_SUBSCRIPTION = 'subs';
 const ANDROID_ITEM_TYPE_IAP = 'inapp';
@@ -54,7 +54,12 @@ export const initConnection = () => Platform.select({
     if (!RNIapModule) {
       return Promise.resolve();
     }
-    return RNIapModule.initConnection();
+    let isAmazonDevice = checkIsAmazonDevice();
+    if(isAmazonDevice) {
+      Promise.resolve();
+    } else {
+      return RNIapAndroidModule.initConnection() 
+    }
   },
 })();
 
@@ -68,7 +73,12 @@ export const endConnection = () => Platform.select({
     if (!RNIapModule) {
       return Promise.resolve();
     }
-    return RNIapModule.endConnection();
+    let isAmazonDevice = checkIsAmazonDevice();
+    if(isAmazonDevice) {
+      Promise.resolve();
+    } else {
+      return RNIapAndroidModule.endConnection();
+    }
   },
 })();
 
@@ -80,7 +90,12 @@ export const consumeAllItems = () => Platform.select({
   ios: async() => Promise.resolve(),
   android: async() => {
     checkNativeAndroidAvailable();
-    return RNIapModule.refreshItems();
+    let isAmazonDevice = checkIsAmazonDevice();
+    if(isAmazonDevice) {
+      Promise.resolve();
+    } else {
+      return RNIapAndroidModule.refreshItems();
+    }
   },
 })();
 
@@ -101,7 +116,12 @@ export const getProducts = (skus) => Platform.select({
     if (!RNIapModule) {
       return [];
     }
-    return RNIapModule.getItemsByType(ANDROID_ITEM_TYPE_IAP, skus);
+    let isAmazonDevice = checkIsAmazonDevice();
+    if(isAmazonDevice) {
+      return RNIapAmazonModule.getProductData(skus);
+    } else {
+      return RNIapAndroidModule.getItemsByType(ANDROID_ITEM_TYPE_IAP, skus);
+    }
   },
 })();
 
@@ -118,7 +138,12 @@ export const getSubscriptions = (skus) => Platform.select({
   },
   android: async() => {
     checkNativeAndroidAvailable();
-    return RNIapModule.getItemsByType(ANDROID_ITEM_TYPE_SUBSCRIPTION, skus);
+    let isAmazonDevice = checkIsAmazonDevice();
+    if(isAmazonDevice) {
+      return RNIapAmazonModule.getProductData(skus);
+    } else {
+      return RNIapAndroidModule.getItemsByType(ANDROID_ITEM_TYPE_SUBSCRIPTION, skus);
+    }
   },
 })();
 
@@ -133,9 +158,14 @@ export const getPurchaseHistory = () => Platform.select({
   },
   android: async() => {
     checkNativeAndroidAvailable();
-    let products = await RNIapModule.getPurchaseHistoryByType(ANDROID_ITEM_TYPE_IAP);
-    let subscriptions = await RNIapModule.getPurchaseHistoryByType(ANDROID_ITEM_TYPE_SUBSCRIPTION);
-    return products.concat(subscriptions);
+    let isAmazonDevice = checkIsAmazonDevice();
+    if(isAmazonDevice) {
+      return RNIapAmazonModule.getPurchaseUpdates(true);
+    } else {
+      let products = await RNIapAndroidModule.getPurchaseHistoryByType(ANDROID_ITEM_TYPE_IAP);
+      let subscriptions = await RNIapAndroidModule.getPurchaseHistoryByType(ANDROID_ITEM_TYPE_SUBSCRIPTION);
+      return products.concat(subscriptions);
+    }
   },
 })();
 
@@ -150,9 +180,14 @@ export const getAvailablePurchases = () => Platform.select({
   },
   android: async() => {
     checkNativeAndroidAvailable();
-    let products = await RNIapModule.getAvailableItemsByType(ANDROID_ITEM_TYPE_IAP);
-    let subscriptions = await RNIapModule.getAvailableItemsByType(ANDROID_ITEM_TYPE_SUBSCRIPTION);
-    return products.concat(subscriptions);
+    let isAmazonDevice = checkIsAmazonDevice();
+    if(isAmazonDevice) {
+      return RNIapAmazonModule.getPurchaseUpdates(true);
+    } else {
+      let products = await RNIapAndroidModule.getAvailableItemsByType(ANDROID_ITEM_TYPE_IAP);
+      let subscriptions = await RNIapAndroidModule.getAvailableItemsByType(ANDROID_ITEM_TYPE_SUBSCRIPTION);
+      return products.concat(subscriptions);
+    }
   },
 })();
 
@@ -171,8 +206,13 @@ export const buySubscription = (sku, oldSku, prorationMode) => {
     },
     android: async() => {
       checkNativeAndroidAvailable();
-      if (!prorationMode) prorationMode = -1;
-      return RNIapModule.buyItemByType(ANDROID_ITEM_TYPE_SUBSCRIPTION, sku, oldSku, prorationMode);
+      let isAmazonDevice = checkIsAmazonDevice();
+      if(isAmazonDevice) {
+        return RNIapAmazonModule.purchase(sku);
+      } else {
+        if (!prorationMode) prorationMode = -1;
+        return RNIapAndroidModule.buyItemByType(ANDROID_ITEM_TYPE_SUBSCRIPTION, sku, oldSku, prorationMode);
+      }
     },
   })();
 };
@@ -189,7 +229,12 @@ export const buyProduct = (sku) => Platform.select({
   },
   android: async() => {
     checkNativeAndroidAvailable();
-    return RNIapModule.buyItemByType(ANDROID_ITEM_TYPE_IAP, sku, null, 0);
+    let isAmazonDevice = checkIsAmazonDevice();
+    if(isAmazonDevice) {
+      return RNIapAmazonModule.purchase(sku);
+    } else {
+      return RNIapAndroidModule.buyItemByType(ANDROID_ITEM_TYPE_IAP, sku, null, 0);
+    }
   },
 })();
 
@@ -220,7 +265,12 @@ export const buyProductWithoutFinishTransaction = (sku) => Platform.select({
   },
   android: async() => {
     checkNativeAndroidAvailable();
-    return RNIapModule.buyItemByType(ANDROID_ITEM_TYPE_IAP, sku, null, 0);
+    let isAmazonDevice = checkIsAmazonDevice();
+    if(isAmazonDevice) {
+      return RNIapAmazonModule.purchase(sku);
+    } else {
+      return RNIapAndroidModule.buyItemByType(ANDROID_ITEM_TYPE_IAP, sku, null, 0);
+    }
   },
 })();
 
@@ -273,7 +323,12 @@ export const consumePurchase = (token) => Platform.select({
   ios: async() => Promise.resolve(), // Consuming is a no-op on iOS, as soon as the product is purchased it is considered consumed.
   android: async() => {
     checkNativeAndroidAvailable();
-    return RNIapModule.consumeProduct(token);
+    let isAmazonDevice = checkIsAmazonDevice();
+    if(isAmazonDevice) {
+      Promise.resolve();
+    } else {
+      return RNIapAndroidModule.consumeProduct(token);
+    }
   },
 })();
 
@@ -368,7 +423,31 @@ export const addAdditionalSuccessPurchaseListenerIOS = (e) => {
 };
 
 /**
- * deprecagted codes
+ * Notify Amazon IAP fulfillment completed / failed
+ * @param {string} receiptId the receiptId sent over to amazon
+ * @param {FulfillmentResult} fulfillmentResult Enum value of fulfillment status - (https://s3-us-west-1.amazonaws.com/devportal-reference-docs/iap/API-Reference/com/amazon/device/iap/model/FulfillmentResult.html)
+ * @returns {null}
+ */
+export const notifyFulfillmentAmazon = async(receiptId, fulfillmentResult) => {
+  console.log('notifying fulfillment');
+  RNIapAmazonModule.notifyFulfillment(receiptId, fulfillmentResult);
+}
+
+// Function used to differentiate amazon / android devices
+export const checkIsAmazonDevice = async() => {
+  let isAmazonDevice = await RNIapCombinedModule.isAmazonDevice();
+  return isAmazonDevice;
+}
+
+export const getUserData = async() => {
+  console.log('hit getUserData');
+  let userInfo = JSON.parse(await RNIapAmazonModule.getUserData());
+  console.log('user data returning from index.js of IAP module');
+  return userInfo;
+}
+
+/**
+ * deprecated codes
  */
 /*
 export const validateReceiptIos = async (receiptBody, isTest) => {
@@ -409,6 +488,7 @@ export default {
   getSubscriptions,
   getPurchaseHistory,
   getAvailablePurchases,
+  getUserData,
   consumeAllItems,
   buySubscription,
   buyProduct,
@@ -420,4 +500,5 @@ export default {
   validateReceiptIos,
   validateReceiptAndroid,
   addAdditionalSuccessPurchaseListenerIOS,
+  notifyFulfillmentAmazon
 };

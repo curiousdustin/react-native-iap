@@ -43,8 +43,8 @@ import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 
-public class RNIapModule extends ReactContextBaseJavaModule {
-  final String TAG = "RNIapModule";
+public class RNIapAndroidModule extends ReactContextBaseJavaModule {
+  final String TAG = "RNIapAndroidModule";
 
   private static final String E_UNKNOWN = "E_UNKNOWN";
   private static final String E_NOT_PREPARED = "E_NOT_PREPARED";
@@ -101,7 +101,7 @@ public class RNIapModule extends ReactContextBaseJavaModule {
     }
   };
 
-  public RNIapModule(ReactApplicationContext reactContext) {
+  public RNIapAndroidModule(ReactApplicationContext reactContext) {
     super(reactContext);
     this.reactContext = reactContext;
     reactContext.addLifecycleEventListener(lifecycleEventListener);
@@ -150,7 +150,7 @@ public class RNIapModule extends ReactContextBaseJavaModule {
 
   @Override
   public String getName() {
-    return "RNIapModule";
+    return TAG;
   }
 
   @ReactMethod
