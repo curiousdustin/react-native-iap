@@ -23,14 +23,26 @@ export const prepare = () => {
     },
     android: async() => {
       checkNativeAndroidAvailable();
-      return RNIapModule.initConnection();
+      let isAmazonDevice = checkIsAmazonDevice();
+      if(isAmazonDevice) {
+        Promise.resolve();
+      } else {
+        return RNIapAndroidModule.initConnection() 
+      }
     },
   })();
 };
 
 function checkNativeAndroidAvailable() {
-  if (!RNIapModule) {
-    return Promise.reject(new Error('E_IAP_NOT_AVAILABLE', 'The payment setup is not available in this version of the app. Contact admin.'));
+  let isAmazonDevice = checkIsAmazonDevice();
+  if(isAmazonDevice) {
+    if (!RNIapAmazonModule) {
+      return Promise.reject(new Error('E_IAP_NOT_AVAILABLE', 'The payment setup is not available in this version of the app. Contact admin.'));
+    }
+  } else {
+    if (!RNIapAndroidModule) {
+      return Promise.reject(new Error('E_IAP_NOT_AVAILABLE', 'The payment setup is not available in this version of the app. Contact admin.'));
+    }
   }
 };
 
@@ -51,13 +63,13 @@ export const initConnection = () => Platform.select({
     return RNIapIos.canMakePayments();
   },
   android: async() => {
-    if (!RNIapModule) {
-      return Promise.resolve();
-    }
     let isAmazonDevice = checkIsAmazonDevice();
     if(isAmazonDevice) {
       Promise.resolve();
     } else {
+      if (!RNIapAndroidModule) {
+        return Promise.resolve();
+      }
       return RNIapAndroidModule.initConnection() 
     }
   },
@@ -70,13 +82,13 @@ export const initConnection = () => Platform.select({
 export const endConnection = () => Platform.select({
   ios: async() => Promise.resolve(),
   android: async() => {
-    if (!RNIapModule) {
-      return Promise.resolve();
-    }
     let isAmazonDevice = checkIsAmazonDevice();
     if(isAmazonDevice) {
       Promise.resolve();
     } else {
+      if (!RNIapAndroidModule) {
+        return Promise.resolve();
+      }
       return RNIapAndroidModule.endConnection();
     }
   },
@@ -113,13 +125,13 @@ export const getProducts = (skus) => Platform.select({
       .then((items) => items.filter((item) => item.productId));
   },
   android: async() => {
-    if (!RNIapModule) {
-      return [];
-    }
     let isAmazonDevice = checkIsAmazonDevice();
     if(isAmazonDevice) {
       return RNIapAmazonModule.getProductData(skus);
     } else {
+      if (!RNIapAndroidModule) {
+        return [];
+      }
       return RNIapAndroidModule.getItemsByType(ANDROID_ITEM_TYPE_IAP, skus);
     }
   },
