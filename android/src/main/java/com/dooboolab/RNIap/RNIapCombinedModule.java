@@ -6,6 +6,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -35,12 +36,15 @@ import com.facebook.react.bridge.WritableMap;
 public class RNIapCombinedModule extends ReactContextBaseJavaModule {
   final String TAG = "RNIapCombinedModule";
 
-  private final String AMAZON_DEVICE_IDENTIFIER = "amazon.hardware.fire_tv";
+  //This seems like it would have only worked on fire tv
+  //private final String AMAZON_DEVICE_IDENTIFIER = "amazon.hardware.fire_tv";
   private Boolean isAmazonDevice;
   
   public RNIapCombinedModule (ReactApplicationContext reactContext) {
     super(reactContext);
-    isAmazonDevice = getReactApplicationContext().getPackageManager().hasSystemFeature(AMAZON_DEVICE_IDENTIFIER);
+	isAmazonDevice = Build.MANUFACTURER.equals("Amazon"); 
+	
+	//isAmazonDevice = getReactApplicationContext().getPackageManager().hasSystemFeature(AMAZON_DEVICE_IDENTIFIER);
   }
 
   @ReactMethod     
