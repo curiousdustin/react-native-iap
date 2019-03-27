@@ -22,8 +22,10 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.ReadableArray;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.Map;
 import java.util.Date;
@@ -80,9 +82,15 @@ public class RNIapAmazonModule extends ReactContextBaseJavaModule {
   // Primary methods for fetching data from Amazon
   // The set of skus must be <= 100
   @ReactMethod
-  public RequestId getProductData(Set skus, Promise promise) {
+  public RequestId getProductData(ReadableArray skus, Promise promise) {
+	final Set<String> skusSet = new HashSet<String>();
+
+	for (int i = 0; i < skus.size(); i++) {
+	  skusSet.add(skus.getString(i));
+	}
+
     savePromise(GET_PRODUCT_DATA, promise);
-    RequestId requestId = PurchasingService.getProductData(skus);
+    RequestId requestId = PurchasingService.getProductData(skusSet);
     return requestId;
   }
 
