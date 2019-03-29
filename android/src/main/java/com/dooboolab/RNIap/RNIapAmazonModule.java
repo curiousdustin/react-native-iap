@@ -198,14 +198,16 @@ public class RNIapAmazonModule extends ReactContextBaseJavaModule {
       switch (status) {
         case SUCCESSFUL: 
           Receipt receipt = purchaseResponse.getReceipt();
+          UserData userData = purchaseResponse.getUserData();
           // NOTE: In many cases, you would want to notifyFullfilment here. I've left this out in case of 
           // any need to handle things in the UI / React layer prior to notifying fullfilment. The function remains
           // Available as a React Function and can be called at any time 
           Date date = receipt.getPurchaseDate();
           Long transactionDate=date.getTime();
           try {
-            WritableMap map = getPurchaseData(receipt.getSku(),
-                  receipt.getReceiptId(),
+			WritableMap map = getPurchaseData(receipt.getSku(),
+				  receipt.getReceiptId(),
+				  userData.getUserId(),
                   transactionDate.doubleValue());
             resolvePromises(PURCHASE_ITEM, map);
           } catch (Exception e) {
@@ -226,12 +228,14 @@ public class RNIapAmazonModule extends ReactContextBaseJavaModule {
         case SUCCESSFUL:
           WritableArray maps = Arguments.createArray();
           try {
-            List<Receipt> receipts = purchaseUpdatesResponse.getReceipts();
+			List<Receipt> receipts = purchaseUpdatesResponse.getReceipts();
+			UserData userData = purchaseUpdatesResponse.getUserData();
             for(Receipt receipt : receipts) {
               Date date = receipt.getPurchaseDate();
               Long transactionDate = date.getTime();
               WritableMap map = getPurchaseData(receipt.getSku(),
-                      receipt.getReceiptId(),
+					  receipt.getReceiptId(),
+					  userData.getUserId(),
                       transactionDate.doubleValue());
 
               //Log.d(TAG, "Adding item: " + map.toString());
@@ -281,11 +285,12 @@ public class RNIapAmazonModule extends ReactContextBaseJavaModule {
     }
   };
 
-  private WritableMap getPurchaseData(String productId, String receiptId,
+  private WritableMap getPurchaseData(String productId, String receiptId, String userId,
                              Double transactionDate) {
     WritableMap map = Arguments.createMap();
     map.putString("productId", productId);
     map.putString("receiptId", receiptId);
+    map.putString("userIdAmazon", userId);
     map.putString("transactionDate", Double.toString(transactionDate));
     map.putNull("dataAndroid");
     map.putNull("signatureAndroid");
