@@ -83,8 +83,9 @@ public class RNIapAmazonModule extends ReactContextBaseJavaModule {
   // The set of skus must be <= 100
   @ReactMethod
   public RequestId getProductData(ReadableArray skus, Promise promise) {
+	
+	//Build HashSet from ReadableArray
 	final Set<String> skusSet = new HashSet<String>();
-
 	for (int i = 0; i < skus.size(); i++) {
 	  skusSet.add(skus.getString(i));
 	}
