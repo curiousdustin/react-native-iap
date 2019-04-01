@@ -61,6 +61,20 @@ public class RNIapAmazonModule extends ReactContextBaseJavaModule {
   private static final String GET_USER_DATA = "GET_USER_DATA";
   private static final String PURCHASE_ITEM = "PURCHASE_ITEM";
 
+  // Error Code Constants
+  private static final String E_UNKNOWN = "E_UNKNOWN";
+  private static final String E_NOT_PREPARED = "E_NOT_PREPARED";
+  private static final String E_NOT_ENDED = "E_NOT_ENDED";
+  private static final String E_USER_CANCELLED = "E_USER_CANCELLED";
+  private static final String E_ITEM_UNAVAILABLE = "E_ITEM_UNAVAILABLE";
+  private static final String E_NETWORK_ERROR = "E_NETWORK_ERROR";
+  private static final String E_SERVICE_ERROR = "E_SERVICE_ERROR";
+  private static final String E_ALREADY_OWNED = "E_ALREADY_OWNED";
+  private static final String E_REMOTE_ERROR = "E_REMOTE_ERROR";
+  private static final String E_USER_ERROR = "E_USER_ERROR";
+  private static final String E_DEVELOPER_ERROR = "E_DEVELOPER_ERROR";
+  private static final String E_BILLING_RESPONSE_JSON_PARSE_ERROR = "E_BILLING_RESPONSE_JSON_PARSE_ERROR";
+
   // Promises: passed in from React layer. Resolved / rejected depending on response in listener
   private HashMap<String, ArrayList<Promise>> promises = new HashMap<>();
 
@@ -156,7 +170,7 @@ public class RNIapAmazonModule extends ReactContextBaseJavaModule {
               try {
                 number = format.parse(product.getPrice());
               } catch (ParseException e) {
-                rejectPromises(GET_PRODUCT_DATA, "Pricing Parsing error in: " + localTag, e.getMessage(), e);
+                rejectPromises(GET_PRODUCT_DATA, E_BILLING_RESPONSE_JSON_PARSE_ERROR, e.getMessage(), e);
                 return;
               }
               WritableMap map = Arguments.createMap();
@@ -188,14 +202,14 @@ public class RNIapAmazonModule extends ReactContextBaseJavaModule {
             }
             resolvePromises(GET_PRODUCT_DATA, maps);
           } catch (Exception e) { 
-            rejectPromises(GET_PRODUCT_DATA, "PARSE_ERROR IN " + localTag, e.getMessage(), e);
+            rejectPromises(GET_PRODUCT_DATA, E_BILLING_RESPONSE_JSON_PARSE_ERROR, e.getMessage(), e);
           }
           break;
         case FAILED: 
-          rejectPromises(GET_PRODUCT_DATA, "RESPONSE FAILURE IN " + localTag, null, null);
+          rejectPromises(GET_PRODUCT_DATA, E_SERVICE_ERROR, null, null);
           break;
         case NOT_SUPPORTED: 
-        rejectPromises(GET_PRODUCT_DATA, "OPERATION NOT SUPPORTED IN " + localTag, null, null);
+        rejectPromises(GET_PRODUCT_DATA, E_SERVICE_ERROR, null, null);
           break;
       }
     }
@@ -220,11 +234,11 @@ public class RNIapAmazonModule extends ReactContextBaseJavaModule {
                   transactionDate.doubleValue());
             resolvePromises(PURCHASE_ITEM, map);
           } catch (Exception e) {
-            rejectPromises(PURCHASE_ITEM, "JSON_PARSE_ERROR_ON_BILLING_RESPONSE", e.getMessage(), e);
+            rejectPromises(PURCHASE_ITEM, E_BILLING_RESPONSE_JSON_PARSE_ERROR, e.getMessage(), e);
           }
           break;
         case FAILED: 
-          rejectPromises(PURCHASE_ITEM, "PURCHASE ITEM FAILURE", null, null);
+          rejectPromises(PURCHASE_ITEM, E_UNKNOWN, null, null);
           break;
       }
     }
@@ -252,15 +266,15 @@ public class RNIapAmazonModule extends ReactContextBaseJavaModule {
             }
             resolvePromises(GET_PURCHASE_UPDATES, maps);
           } catch (Exception e) {
-            rejectPromises(GET_PURCHASE_UPDATES, "BILLING_RESPONSE_JSON_PARSE_ERROR", e.getMessage(), e);
+            rejectPromises(GET_PURCHASE_UPDATES, E_BILLING_RESPONSE_JSON_PARSE_ERROR, e.getMessage(), e);
           }
           break;
         case FAILED:
-          rejectPromises(GET_PURCHASE_UPDATES, "FAILED IN: " + localTag, null, null);
+          rejectPromises(GET_PURCHASE_UPDATES, E_UNKNOWN, null, null);
           break;
         case NOT_SUPPORTED:
           Log.d(TAG, "onPurchaseUpdatesResponse: failed, should retry request");
-          rejectPromises(GET_PURCHASE_UPDATES, localTag + " NOT_SUPPORTED", "Should retry request", null);
+          rejectPromises(GET_PURCHASE_UPDATES, E_SERVICE_ERROR, "Should retry request", null);
           break;
       }
     } 
@@ -280,15 +294,15 @@ public class RNIapAmazonModule extends ReactContextBaseJavaModule {
             resolvePromises(GET_USER_DATA, map);
           } catch (Exception e) {
             // TODO: If above works w/o error may not need the below catch block
-            rejectPromises(GET_USER_DATA, "USER_DATA_RESPONSE_JSON_PARSE_ERROR", e.getMessage(), e);
+            rejectPromises(GET_USER_DATA, E_BILLING_RESPONSE_JSON_PARSE_ERROR, e.getMessage(), e);
           }
           break;
         case FAILED:
           Log.d(TAG, "onPurchaseUpdatesResponse: failed, should retry request");
-          rejectPromises(GET_USER_DATA, "FAILED IN: " + localTag, null, null);
+          rejectPromises(GET_USER_DATA, E_UNKNOWN, null, null);
           break;
         case NOT_SUPPORTED:
-          rejectPromises(GET_PURCHASE_UPDATES, localTag + " NOT_SUPPORTED", "Should retry request", null);
+          rejectPromises(GET_PURCHASE_UPDATES, E_SERVICE_ERROR, "Should retry request", null);
           break;
       }
     }
