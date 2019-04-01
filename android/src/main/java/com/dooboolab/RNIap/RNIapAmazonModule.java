@@ -218,10 +218,12 @@ public class RNIapAmazonModule extends ReactContextBaseJavaModule {
       final String localTag = "onPurchaseResponse";
       final PurchaseResponse.RequestStatus status = purchaseResponse.getRequestStatus();
       Log.d(TAG, "Response status: " + status);
-      switch (status) {
-        case SUCCESSFUL: 
-          Receipt receipt = purchaseResponse.getReceipt();
-          UserData userData = purchaseResponse.getUserData();
+	  Receipt receipt = null;
+	  UserData userData = null;
+	  switch (status) {
+		case SUCCESSFUL: 
+          receipt = purchaseResponse.getReceipt();
+          userData = purchaseResponse.getUserData();
           // NOTE: In many cases, you would want to notifyFullfilment here. I've left this out in case of 
           // any need to handle things in the UI / React layer prior to notifying fullfilment. The function remains
           // Available as a React Function and can be called at any time 
@@ -237,7 +239,12 @@ public class RNIapAmazonModule extends ReactContextBaseJavaModule {
             rejectPromises(PURCHASE_ITEM, E_BILLING_RESPONSE_JSON_PARSE_ERROR, e.getMessage(), e);
           }
           break;
-        case FAILED: 
+		case ALREADY_PURCHASED: 
+		  rejectPromises(PURCHASE_ITEM, E_ALREADY_OWNED, "You have already purchased this item.", null);
+		  break;
+		case NOT_SUPPORTED:
+		case INVALID_SKU:
+	    case FAILED: 
           rejectPromises(PURCHASE_ITEM, E_UNKNOWN, null, null);
           break;
       }
@@ -309,7 +316,7 @@ public class RNIapAmazonModule extends ReactContextBaseJavaModule {
   };
 
   private WritableMap getPurchaseData(String productId, String receiptId, String userId,
-                             Double transactionDate) {
+    Double transactionDate) {
     WritableMap map = Arguments.createMap();
     map.putString("productId", productId);
     map.putString("receiptId", receiptId);
