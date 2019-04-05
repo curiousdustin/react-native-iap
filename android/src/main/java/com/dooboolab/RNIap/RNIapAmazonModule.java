@@ -151,7 +151,7 @@ public class RNIapAmazonModule extends ReactContextBaseJavaModule {
   private PurchasingListener purchasingListener = new PurchasingListener() {
     public void onProductDataResponse(ProductDataResponse productDataResponse) {
       final String localTag = "onProductDataResponse";
-      Log.d(TAG, " onProductDataResponse: " + productDataResponse.toString());
+      Log.d(TAG, "onProductDataResponse: " + productDataResponse.toString());
       final ProductDataResponse.RequestStatus status = productDataResponse.getRequestStatus();
       Log.d(TAG, "Status: " + status);
 
@@ -165,14 +165,19 @@ public class RNIapAmazonModule extends ReactContextBaseJavaModule {
               Product product = skuDetails.getValue();
               ProductType productType = product.getProductType();
               NumberFormat format = NumberFormat.getCurrencyInstance();
-
-              Number number;
+			  
+              Number number = 0.00;
               try {
-                number = format.parse(product.getPrice());
+			    String priceString = product.getPrice();
+				if (priceString != null && !priceString.isEmpty()) {
+					number = format.parse(priceString);
+				}
               } catch (ParseException e) {
-                rejectPromises(GET_PRODUCT_DATA, E_BILLING_RESPONSE_JSON_PARSE_ERROR, e.getMessage(), e);
-                return;
-              }
+				Log.w(TAG, "onProductDataResponse: Failed to parse price for product: " + product.getSku());
+				number = 0.00;
+			  }
+			  Log.d(TAG, "parsed price: " + number);
+
               WritableMap map = Arguments.createMap();
 
               //JSONObject item = new JSONObject();
@@ -354,6 +359,7 @@ public class RNIapAmazonModule extends ReactContextBaseJavaModule {
   }
 
   private void rejectPromises(String key, String code, String message, Exception err) {
+    Log.d(TAG, "reject promises: " + key + " " + code + ": " + message);
     if (promises.containsKey(key)) {
       ArrayList<Promise> list = promises.get(key);
       for (Promise promise : list) {
