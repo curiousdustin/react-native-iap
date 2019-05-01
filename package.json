@@ -26,6 +26,7 @@
     "react-native": ">=0.54"
   },
   "dependencies": {
+    "react-native-build-config": "github:ismaeldcom/react-native-build-config",
     "dooboolab-welcome": "^1.1.0"
   },
   "devDependencies": {
