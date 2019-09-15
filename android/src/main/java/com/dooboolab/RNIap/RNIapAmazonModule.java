@@ -236,9 +236,10 @@ public class RNIapAmazonModule extends ReactContextBaseJavaModule {
           Long transactionDate=date.getTime();
           try {
 			WritableMap map = getPurchaseData(receipt.getSku(),
-				  receipt.getReceiptId(),
-				  userData.getUserId(),
-                  transactionDate.doubleValue());
+                                receipt.getReceiptId(),
+                                userData.getUserId(),
+                                transactionDate.doubleValue(),
+                                getCancelDate(receipt));
             resolvePromises(PURCHASE_ITEM, map);
           } catch (Exception e) {
             rejectPromises(PURCHASE_ITEM, E_BILLING_RESPONSE_JSON_PARSE_ERROR, e.getMessage(), e);
@@ -269,9 +270,10 @@ public class RNIapAmazonModule extends ReactContextBaseJavaModule {
               Date date = receipt.getPurchaseDate();
               Long transactionDate = date.getTime();
               WritableMap map = getPurchaseData(receipt.getSku(),
-					  receipt.getReceiptId(),
-					  userData.getUserId(),
-                      transactionDate.doubleValue());
+                                  receipt.getReceiptId(),
+                                  userData.getUserId(),
+                                  transactionDate.doubleValue(),
+                                  getCancelDate(receipt));
 
               //Log.d(TAG, "Adding item: " + map.toString());
               maps.pushMap(map);
@@ -289,7 +291,15 @@ public class RNIapAmazonModule extends ReactContextBaseJavaModule {
           rejectPromises(GET_PURCHASE_UPDATES, E_SERVICE_ERROR, "Should retry request", null);
           break;
       }
-    } 
+    }
+
+    private Double getCancelDate(Receipt reciept) {
+      Date cancelDate = reciept.getCancelDate();
+
+      if (cancelDate == null) return null;
+
+      return ((Long) cancelDate.getTime()).doubleValue();
+    }
 
     public void onUserDataResponse(UserDataResponse userDataResponse) {
       final String localTag = "onUserDataResponse";
@@ -314,17 +324,21 @@ public class RNIapAmazonModule extends ReactContextBaseJavaModule {
           rejectPromises(GET_USER_DATA, E_UNKNOWN, null, null);
           break;
         case NOT_SUPPORTED:
-          rejectPromises(GET_PURCHASE_UPDATES, E_SERVICE_ERROR, "Should retry request", null);
+          rejectPromises(GET_USER_DATA, E_SERVICE_ERROR, "Should retry request", null);
           break;
       }
     }
   };
 
   private WritableMap getPurchaseData(String productId, String receiptId, String userId,
-    Double transactionDate) {
+    Double transactionDate, Double cancelDate) {
     WritableMap map = Arguments.createMap();
     map.putString("productId", productId);
     map.putString("receiptId", receiptId);
+    if (cancelDate == null)
+      map.putNull("cancelDateAmazon");
+    else
+      map.putString("cancelDateAmazon", Double.toString(cancelDate));
     map.putString("userIdAmazon", userId);
     map.putString("transactionDate", Double.toString(transactionDate));
     map.putNull("dataAndroid");

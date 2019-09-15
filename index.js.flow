@@ -38,8 +38,11 @@ export type ProductPurchase = {|
   transactionId: string,
   transactionDate: string,
   transactionReceipt: string,
+  receiptId: string,
   signatureAndroid?: string,
   dataAndroid?: string,
+  userIdAmazon: string,
+  cancelDateAmazon?: string,
   purchaseToken?: string,
 |}
 
@@ -88,6 +91,10 @@ declare module.exports: {
   addAdditionalSuccessPurchaseListenerIOS(
     fn: (any) => any,
   ): EmitterSubscription,
+  notifyFulfillmentAmazon(
+    receiptId: string,
+    fulfillmentResult: string
+  ) : void;
 }
 
 // TODO: the following definitions should be more specific
