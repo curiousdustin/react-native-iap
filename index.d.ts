@@ -38,8 +38,11 @@ export interface ProductPurchase {
   transactionId: string;
   transactionDate: string;
   transactionReceipt: string;
+  receiptId: string;
   signatureAndroid?: string;
   dataAndroid?: string;
+  userIdAmazon: string;
+  cancelDateAmazon?: string;
   purchaseToken?: string;
 }
 
@@ -192,3 +195,11 @@ export function validateReceiptAndroid(packageName: string, productId: string, p
  * @returns {callback(e: Event)}
  */
 export function addAdditionalSuccessPurchaseListenerIOS(fn: Function) : EmitterSubscription;
+
+/**
+ * Update the status to Amazon Appstore. If the SKU is available, call with status FULFILLED.
+ * Once this step is complete, the Amazon Appstore will not try to send the purchase receipt to the app anymore.
+ * @param receiptId id of the purchase receipt.
+ * @param fulfillmentResult either "FULFILLED" or "UNAVAILABLE".
+ */
+export function notifyFulfillmentAmazon(receiptId: string, fulfillmentResult: string) : void;

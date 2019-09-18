@@ -440,7 +440,7 @@ export const addAdditionalSuccessPurchaseListenerIOS = (e) => {
  * @param {number} fulfillmentResult Enum value of fulfillment status - (https://s3-us-west-1.amazonaws.com/devportal-reference-docs/iap/API-Reference/com/amazon/device/iap/model/FulfillmentResult.html)
  * @returns {null}
  */
-export const notifyFulfillmentAmazon = async(receiptId, fulfillmentResult) => {
+export const notifyFulfillmentAmazon = (receiptId, fulfillmentResult) => {
   console.log('notifying fulfillment');
   RNIapAmazonModule.notifyFulfillment(receiptId, fulfillmentResult);
 }
