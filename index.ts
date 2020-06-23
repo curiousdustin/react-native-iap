@@ -219,17 +219,18 @@ export const endConnection = (): Promise<void> =>
   Platform.select({
     ios: async () => {
       if (!RNIapIos) {
-        console.warn('Native ios module does not exists');
+        console.warn('Native ios module does not exist');
         return Promise.resolve();
       }
       return RNIapIos.endConnection();
     },
     android: async () => {
-      if (!RNIapModule) {
-        console.warn('Native ios module does not exists');
+      const myRNIapModule = getAndroidModule();
+      if (!RNIapModule || !RNIapAmazonModule) {
+        console.warn('Native android module does not exist');
         return Promise.resolve();
       }
-      return RNIapModule.endConnection();
+      return myRNIapModule.endConnection();
     },
   })();
 

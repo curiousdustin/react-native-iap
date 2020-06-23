@@ -98,6 +98,11 @@ public class RNIapAmazonModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
+  public void endConnection(final Promise promise) {
+    promise.resolve(true);
+  }
+
+  @ReactMethod
   public void getItemsByType(final String type, final ReadableArray skuArr, final Promise promise) {
     final Set <String>productSkus = new HashSet<String>();
     for (int ii = 0, skuSize = skuArr.size(); ii < skuSize; ii++) {
