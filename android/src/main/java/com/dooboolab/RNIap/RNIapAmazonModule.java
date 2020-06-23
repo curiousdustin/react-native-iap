@@ -122,6 +122,13 @@ public class RNIapAmazonModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
+  public void getAvailableItemsByType(final String type, final Promise promise) {
+    // TODO:
+    final WritableNativeArray items = new WritableNativeArray();
+    promise.resolve(items);
+  }
+
+  @ReactMethod
   public void buyItemByType(
     final String type,
     final String sku,
