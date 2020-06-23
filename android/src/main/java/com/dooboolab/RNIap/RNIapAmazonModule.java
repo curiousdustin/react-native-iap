@@ -103,6 +103,15 @@ public class RNIapAmazonModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
+  public void refreshItems(final Promise promise) {
+    // TODO: Determine what needs to happen here on Amazon, if anything.
+    // This is called from RNIap.consumeAllItemsAndroid()
+    // Android only
+    // Consume all items so they are able to buy again.
+    promise.resolve(true);
+  }
+
+  @ReactMethod
   public void getItemsByType(final String type, final ReadableArray skuArr, final Promise promise) {
     final Set <String>productSkus = new HashSet<String>();
     for (int ii = 0, skuSize = skuArr.size(); ii < skuSize; ii++) {
