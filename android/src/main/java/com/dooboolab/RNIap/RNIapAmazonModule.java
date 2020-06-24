@@ -51,6 +51,7 @@ public class RNIapAmazonModule extends ReactContextBaseJavaModule {
   public static final String PROMISE_BUY_ITEM = "PROMISE_BUY_ITEM";
   public static final String PROMISE_GET_PRODUCT_DATA = "PROMISE_GET_PRODUCT_DATA";
   public static final String PROMISE_QUERY_PURCHASES = "PROMISE_QUERY_PURCHASES";
+  public static final String PROMISE_QUERY_AVAILABLE_ITEMS = "PROMISE_QUERY_AVAILABLE_ITEMS";
   public static final String PROMISE_GET_USER_DATA = "PROMISE_GET_USER_DATA";
 
   private final ReactContext reactContext;
@@ -123,14 +124,15 @@ public class RNIapAmazonModule extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void getAvailableItemsByType(final String type, final Promise promise) {
-    // TODO:
-    final WritableNativeArray items = new WritableNativeArray();
-    promise.resolve(items);
+    Log.d(TAG, "getAvailableItemsByType " + type);
+    DoobooUtils.getInstance().addPromiseForKey(PROMISE_QUERY_AVAILABLE_ITEMS, promise);
+    ((RNIapAmazonListener) purchasingListener).getPurchaseUpdatesByType(type);
   }
 
   @ReactMethod
   public void getPurchaseHistoryByType(final String type, final Promise promise) {
     // TODO:
+    Log.d(TAG, "getPurchaseHistoryByType " + type);
     final WritableNativeArray items = new WritableNativeArray();
     promise.resolve(items);
   }

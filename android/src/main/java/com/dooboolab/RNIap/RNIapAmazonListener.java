@@ -55,11 +55,20 @@ public class RNIapAmazonListener implements PurchasingListener {
 
   private ReactContext reactContext;
   private List<Product> skus;
+  private WritableNativeArray availableItems;
+  private String availableItemsType;
 
   public RNIapAmazonListener(final ReactContext reactContext) {
     super();
     this.reactContext = reactContext;
     this.skus = new ArrayList<Product>();
+    this.availableItems = new WritableNativeArray();
+    this.availableItemsType = null;
+  }
+
+  public void getPurchaseUpdatesByType(final String type) {
+    this.availableItemsType = type;
+    PurchasingService.getPurchaseUpdates(true);
   }
 
   @Override
@@ -160,6 +169,12 @@ public class RNIapAmazonListener implements PurchasingListener {
             promiseItem = new WritableNativeMap();
             promiseItem.merge(item);
             sendEvent(reactContext, "purchase-updated", item);
+
+            ProductType productType = receipt.getProductType();
+            final String productTypeString = (productType == ProductType.ENTITLED || productType == ProductType.CONSUMABLE) ? "inapp" : "subs";
+            if (productTypeString.equals(availableItemsType)) {
+                availableItems.pushMap(promiseItem);
+            }
           }
           if (response.hasMore()) {
             PurchasingService.getPurchaseUpdates(false);
@@ -168,6 +183,10 @@ public class RNIapAmazonListener implements PurchasingListener {
                 DoobooUtils.getInstance().resolvePromisesForKey(RNIapAmazonModule.PROMISE_BUY_ITEM, promiseItem);
             }
             DoobooUtils.getInstance().resolvePromisesForKey(RNIapAmazonModule.PROMISE_QUERY_PURCHASES, true);
+
+            DoobooUtils.getInstance().resolvePromisesForKey(RNIapAmazonModule.PROMISE_QUERY_AVAILABLE_ITEMS, availableItems);
+            availableItems = new WritableNativeArray();
+            availableItemsType = null;
           }
           break;
       case FAILED:
