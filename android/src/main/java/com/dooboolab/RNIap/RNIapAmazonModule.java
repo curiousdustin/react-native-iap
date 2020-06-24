@@ -166,7 +166,7 @@ public class RNIapAmazonModule extends ReactContextBaseJavaModule {
   }
 
   private void sendUnconsumedPurchases(final Promise promise) {
-    PurchasingService.getPurchaseUpdates(true);
+    PurchasingService.getPurchaseUpdates(false);
     DoobooUtils.getInstance().addPromiseForKey(PROMISE_QUERY_PURCHASES, promise);
   }
 
