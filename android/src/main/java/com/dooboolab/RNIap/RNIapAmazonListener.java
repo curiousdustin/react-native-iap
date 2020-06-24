@@ -143,6 +143,12 @@ public class RNIapAmazonListener implements PurchasingListener {
       //             + ") purchaseUpdatesResponseStatus (" + response.getRequestStatus()
       //             + ") userId (" + response.getUserData().getUserId() + ")");
       Log.d(TAG, "onPurchaseUpdatesResponse: " + response.toString());
+
+      //Info for potential error reporting
+      String debugMessage = null;
+      String errorCode = DoobooUtils.E_UNKNOWN;
+      WritableMap error = Arguments.createMap();
+
       final PurchaseUpdatesResponse.RequestStatus status = response.getRequestStatus();
       switch(status) {
       case SUCCESSFUL:
@@ -190,10 +196,34 @@ public class RNIapAmazonListener implements PurchasingListener {
           }
           break;
       case FAILED:
-          DoobooUtils.getInstance().rejectPromisesForKey(RNIapAmazonModule.PROMISE_QUERY_PURCHASES, E_PURCHASE_UPDATES_RESPONSE_FAILED, null, null);
+          debugMessage = "An unknown or unexpected error has occured. Please try again later.";
+          errorCode = DoobooUtils.E_UNKNOWN;
+          error.putInt("responseCode", 0);
+          error.putString("debugMessage", debugMessage);
+          error.putString("code", errorCode);
+          error.putString("message", debugMessage);
+          sendEvent(reactContext, "purchase-error", error);
+
+          DoobooUtils.getInstance().rejectPromisesForKey(RNIapAmazonModule.PROMISE_QUERY_PURCHASES, errorCode, debugMessage, null);
+
+          DoobooUtils.getInstance().rejectPromisesForKey(RNIapAmazonModule.PROMISE_QUERY_AVAILABLE_ITEMS, errorCode, debugMessage, null);
+          availableItems = new WritableNativeArray();
+          availableItemsType = null;
           break;
       case NOT_SUPPORTED:
-          DoobooUtils.getInstance().rejectPromisesForKey(RNIapAmazonModule.PROMISE_QUERY_PURCHASES, E_PURCHASE_UPDATES_RESPONSE_NOT_SUPPORTED, null, null);
+          debugMessage = "This feature is not available on your device.";
+          errorCode = DoobooUtils.E_SERVICE_ERROR;
+          error.putInt("responseCode", 0);
+          error.putString("debugMessage", debugMessage);
+          error.putString("code", errorCode);
+          error.putString("message", debugMessage);
+          sendEvent(reactContext, "purchase-error", error);
+
+          DoobooUtils.getInstance().rejectPromisesForKey(RNIapAmazonModule.PROMISE_QUERY_PURCHASES, errorCode, debugMessage, null);
+
+          DoobooUtils.getInstance().rejectPromisesForKey(RNIapAmazonModule.PROMISE_QUERY_AVAILABLE_ITEMS, errorCode, debugMessage, null);
+          availableItems = new WritableNativeArray();
+          availableItemsType = null;
           break;
       }
   }
@@ -203,6 +233,12 @@ public class RNIapAmazonListener implements PurchasingListener {
       final String requestId = response.getRequestId().toString();
       final String userId = response.getUserData().getUserId();
       final PurchaseResponse.RequestStatus status = response.getRequestStatus();
+      
+      //Info for potential error reporting
+      String debugMessage = null;
+      String errorCode = DoobooUtils.E_UNKNOWN;
+      WritableMap error = Arguments.createMap();
+
       //Log.d(TAG, "onPurchaseResponse: requestId (" + requestId + ") userId ("
       //             + userId + ") purchaseRequestStatus (" + status + ")");
       Log.d(TAG, "onPurchaseResponse: " + response.toString());
@@ -223,16 +259,48 @@ public class RNIapAmazonListener implements PurchasingListener {
           DoobooUtils.getInstance().resolvePromisesForKey(RNIapAmazonModule.PROMISE_GET_PRODUCT_DATA, true);
           break;
       case ALREADY_PURCHASED:
-          DoobooUtils.getInstance().rejectPromisesForKey(RNIapAmazonModule.PROMISE_BUY_ITEM, E_PURCHASE_RESPONSE_ALREADY_PURCHASED, null, null);
+          debugMessage = "You already own this item.";
+          errorCode = DoobooUtils.E_ALREADY_OWNED;
+          error.putInt("responseCode", 0);
+          error.putString("debugMessage", debugMessage);
+          error.putString("code", errorCode);
+          error.putString("message", debugMessage);
+          sendEvent(reactContext, "purchase-error", error);
+          
+          DoobooUtils.getInstance().rejectPromisesForKey(RNIapAmazonModule.PROMISE_BUY_ITEM, errorCode, debugMessage, null);
           break;
       case FAILED:
-          DoobooUtils.getInstance().rejectPromisesForKey(RNIapAmazonModule.PROMISE_BUY_ITEM, E_PURCHASE_RESPONSE_FAILED, null, null);
+          debugMessage = "An unknown or unexpected error has occured. Please try again later.";
+          errorCode = DoobooUtils.E_UNKNOWN;
+          error.putInt("responseCode", 0);
+          error.putString("debugMessage", debugMessage);
+          error.putString("code", errorCode);
+          error.putString("message", debugMessage);
+          sendEvent(reactContext, "purchase-error", error);
+          
+          DoobooUtils.getInstance().rejectPromisesForKey(RNIapAmazonModule.PROMISE_BUY_ITEM, errorCode, debugMessage, null);
           break;
       case INVALID_SKU:
-          DoobooUtils.getInstance().rejectPromisesForKey(RNIapAmazonModule.PROMISE_BUY_ITEM, E_PURCHASE_RESPONSE_INVALID_SKU, null, null);
+          debugMessage = "That item is unavailable.";
+          errorCode = DoobooUtils.E_ITEM_UNAVAILABLE;
+          error.putInt("responseCode", 0);
+          error.putString("debugMessage", debugMessage);
+          error.putString("code", errorCode);
+          error.putString("message", debugMessage);
+          sendEvent(reactContext, "purchase-error", error);
+
+          DoobooUtils.getInstance().rejectPromisesForKey(RNIapAmazonModule.PROMISE_BUY_ITEM, errorCode, debugMessage, null);
           break;
       case NOT_SUPPORTED:
-          DoobooUtils.getInstance().rejectPromisesForKey(RNIapAmazonModule.PROMISE_BUY_ITEM, E_PURCHASE_RESPONSE_NOT_SUPPORTED, null, null);
+          debugMessage = "This feature is not available on your device.";
+          errorCode = DoobooUtils.E_SERVICE_ERROR;
+          error.putInt("responseCode", 0);
+          error.putString("debugMessage", debugMessage);
+          error.putString("code", errorCode);
+          error.putString("message", debugMessage);
+          sendEvent(reactContext, "purchase-error", error);
+
+          DoobooUtils.getInstance().rejectPromisesForKey(RNIapAmazonModule.PROMISE_BUY_ITEM, errorCode, debugMessage, null);
           break;
       }
   }
