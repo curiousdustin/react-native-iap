@@ -521,8 +521,9 @@ export const finishTransaction = (
             developerPayloadAndroid,
           );
         } else if (
-          !purchase.isAcknowledgedAndroid &&
-          purchase.purchaseStateAndroid === PurchaseStateAndroid.PURCHASED
+          purchase.userIdAmazon ||
+          (!purchase.isAcknowledgedAndroid &&
+          purchase.purchaseStateAndroid === PurchaseStateAndroid.PURCHASED)
         ) {
           return myRNIapModule.acknowledgePurchase(
             purchase.purchaseToken,
