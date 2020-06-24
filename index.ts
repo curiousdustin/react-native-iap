@@ -98,6 +98,9 @@ export interface ProductPurchase {
   originalTransactionDateIOS?: string;
   originalTransactionIdentifierIOS?: string;
   isAcknowledgedAndroid?: boolean;
+  userIdAmazon?: string;
+  userMarketplaceAmazon?: string;
+  userJsonAmazon?: string;
 }
 
 export interface PurchaseResult {
