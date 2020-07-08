@@ -79,6 +79,7 @@ public class RNIapAmazonListener implements PurchasingListener {
 
       switch(status) {
       case SUCCESSFUL:
+          Log.d(TAG, "onProductDataResponse: SUCCESSFUL");    
           final Map<String, Product> productData = response.getProductData();
           final Set<String> unavailableSkus = response.getUnavailableSkus();
 
@@ -125,7 +126,12 @@ public class RNIapAmazonListener implements PurchasingListener {
               item.putInt("coinsRewardAmountAmazon", coinsReward.getAmount());
           }
           items.pushMap(item);
+
+          Log.d(TAG, "onProductDataResponse: item pushed: " + product.getSku());
+          Log.d(TAG, "onProductDataResponse:" + product.toString());
           }
+
+          Log.d(TAG, "onProductDataResponse: RESOLVE");
           DoobooUtils.getInstance().resolvePromisesForKey(RNIapAmazonModule.PROMISE_GET_PRODUCT_DATA, items);
           break;
       case FAILED:
