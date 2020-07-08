@@ -82,6 +82,7 @@ public class RNIapAmazonListener implements PurchasingListener {
     final ProductDataResponse.RequestStatus status = response.getRequestStatus();
     final String requestId = response.getRequestId().toString();
     Log.d(TAG, "onProductDataResponse: " + requestId + " (" + status + ")");
+    Log.d(TAG, "onProductDataResponse: " + response.toString());
 
     switch (status) {
       case SUCCESSFUL:
@@ -93,7 +94,11 @@ public class RNIapAmazonListener implements PurchasingListener {
 
         NumberFormat format = NumberFormat.getCurrencyInstance();
         for (Map.Entry<String, Product> skuDetails : productData.entrySet()) {
+          Log.d(TAG, "onProductDataResponse: Attempting to parse Product...");
+
           Product product = skuDetails.getValue();
+
+          Log.d(TAG, "onProductDataResponse: Product: " + product.toString());
 
           if (!skus.contains(product)) {
             skus.add(product);
@@ -119,6 +124,8 @@ public class RNIapAmazonListener implements PurchasingListener {
               product.getSku()
             );
           }
+
+          Log.d(TAG, "onProductDataResponse: Create item from product.");
 
           WritableMap item = Arguments.createMap();
           CoinsReward coinsReward = product.getCoinsReward();
