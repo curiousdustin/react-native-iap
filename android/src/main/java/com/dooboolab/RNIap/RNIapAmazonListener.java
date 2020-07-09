@@ -139,7 +139,7 @@ public class RNIapAmazonListener implements PurchasingListener {
           CoinsReward coinsReward = product.getCoinsReward();
           item.putString("productId", product.getSku());
           item.putString("price", priceNumber.toString());
-          item.putString("currency", product.getPrice().substring(0, 1));
+          item.putNull("currency");
           item.putString("type", productTypeString);
           item.putString("localizedPrice", product.getPrice());
           item.putString("title", product.getTitle());
