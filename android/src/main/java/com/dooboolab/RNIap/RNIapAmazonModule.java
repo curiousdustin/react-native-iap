@@ -135,7 +135,6 @@ public class RNIapAmazonModule extends ReactContextBaseJavaModule {
     final String type,
     final Promise promise
   ) {
-    Log.d(TAG, "getAvailableItemsByType " + type);
     DoobooUtils
       .getInstance()
       .addPromiseForKey(PROMISE_QUERY_AVAILABLE_ITEMS, promise);
@@ -148,7 +147,6 @@ public class RNIapAmazonModule extends ReactContextBaseJavaModule {
     final Promise promise
   ) {
     // TODO:
-    Log.d(TAG, "getPurchaseHistoryByType " + type);
     final WritableNativeArray items = new WritableNativeArray();
     promise.resolve(items);
   }
@@ -173,7 +171,6 @@ public class RNIapAmazonModule extends ReactContextBaseJavaModule {
     final String developerPayLoad,
     final Promise promise
   ) {
-    Log.d(TAG, "acknowledgePurchase " + token);
     PurchasingService.notifyFulfillment(token, FulfillmentResult.FULFILLED);
     promise.resolve(true);
   }
@@ -184,7 +181,6 @@ public class RNIapAmazonModule extends ReactContextBaseJavaModule {
     final String developerPayLoad,
     final Promise promise
   ) {
-    Log.d(TAG, "consumeProduct " + token);
     PurchasingService.notifyFulfillment(token, FulfillmentResult.FULFILLED);
     promise.resolve(true);
   }

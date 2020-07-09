@@ -81,12 +81,10 @@ public class RNIapAmazonListener implements PurchasingListener {
   public void onProductDataResponse(final ProductDataResponse response) {
     final ProductDataResponse.RequestStatus status = response.getRequestStatus();
     final String requestId = response.getRequestId().toString();
-    Log.d(TAG, "onProductDataResponse: " + requestId + " (" + status + ")");
-    Log.d(TAG, "onProductDataResponse: " + response.toString());
+    // Log.d(TAG, "onProductDataResponse: " + response.toString());
 
     switch (status) {
       case SUCCESSFUL:
-        Log.d(TAG, "onProductDataResponse: SUCCESSFUL");
         final Map<String, Product> productData = response.getProductData();
         final Set<String> unavailableSkus = response.getUnavailableSkus();
 
@@ -94,11 +92,7 @@ public class RNIapAmazonListener implements PurchasingListener {
 
         NumberFormat format = NumberFormat.getCurrencyInstance();
         for (Map.Entry<String, Product> skuDetails : productData.entrySet()) {
-          Log.d(TAG, "onProductDataResponse: Attempting to parse Product...");
-
           Product product = skuDetails.getValue();
-
-          Log.d(TAG, "onProductDataResponse: Product: " + product.toString());
 
           if (!skus.contains(product)) {
             skus.add(product);
@@ -125,16 +119,6 @@ public class RNIapAmazonListener implements PurchasingListener {
             );
           }
 
-          Log.d(TAG, "onProductDataResponse: Create item from product.");
-
-          Log.d(TAG, "onProductDataResponse: product.getSku(): " + product.getSku());
-          Log.d(TAG, "onProductDataResponse: priceNumber.toString(): " + priceNumber.toString());
-          Log.d(TAG, "onProductDataResponse: product.getPrice(): " + product.getPrice());
-          Log.d(TAG, "onProductDataResponse: product.getTitle(): " + product.getTitle());
-          Log.d(TAG, "onProductDataResponse: product.getDescription(): " + product.getDescription());
-          Log.d(TAG, "onProductDataResponse: product.getSmallIconUrl(): " + product.getSmallIconUrl());
-          Log.d(TAG, "onProductDataResponse: product.toString(): " + product.toString());
-          
           WritableMap item = Arguments.createMap();
           CoinsReward coinsReward = product.getCoinsReward();
           item.putString("productId", product.getSku());
@@ -156,12 +140,8 @@ public class RNIapAmazonListener implements PurchasingListener {
             item.putInt("coinsRewardAmountAmazon", coinsReward.getAmount());
           }
           items.pushMap(item);
-
-          Log.d(TAG, "onProductDataResponse: item pushed: " + product.getSku());
-          Log.d(TAG, "onProductDataResponse:" + product.toString());
         }
 
-        Log.d(TAG, "onProductDataResponse: RESOLVE");
         DoobooUtils
           .getInstance()
           .resolvePromisesForKey(
@@ -196,10 +176,7 @@ public class RNIapAmazonListener implements PurchasingListener {
   public void onPurchaseUpdatesResponse(
     final PurchaseUpdatesResponse response
   ) {
-    //Log.d(TAG, "onPurchaseUpdatesResponse: requestId (" + response.getRequestId()
-    //             + ") purchaseUpdatesResponseStatus (" + response.getRequestStatus()
-    //             + ") userId (" + response.getUserData().getUserId() + ")");
-    Log.d(TAG, "onPurchaseUpdatesResponse: " + response.toString());
+    // Log.d(TAG, "onPurchaseUpdatesResponse: " + response.toString());
 
     //Info for potential error reporting
     String debugMessage = null;
@@ -348,9 +325,7 @@ public class RNIapAmazonListener implements PurchasingListener {
     String errorCode = DoobooUtils.E_UNKNOWN;
     WritableMap error = Arguments.createMap();
 
-    //Log.d(TAG, "onPurchaseResponse: requestId (" + requestId + ") userId ("
-    //             + userId + ") purchaseRequestStatus (" + status + ")");
-    Log.d(TAG, "onPurchaseResponse: " + response.toString());
+    // Log.d(TAG, "onPurchaseResponse: " + response.toString());
     switch (status) {
       case SUCCESSFUL:
         final Receipt receipt = response.getReceipt();
@@ -450,9 +425,7 @@ public class RNIapAmazonListener implements PurchasingListener {
 
   @Override
   public void onUserDataResponse(final UserDataResponse response) {
-    //Log.d(TAG, "onGetUserDataResponse: requestId (" + response.getRequestId()
-    //             + ") userIdRequestStatus: " + response.getRequestStatus() + ")");
-    Log.d(TAG, "onGetUserDataResponse: " + response.toString());
+    // Log.d(TAG, "onGetUserDataResponse: " + response.toString());
     final UserDataResponse.RequestStatus status = response.getRequestStatus();
     switch (status) {
       case SUCCESSFUL:
