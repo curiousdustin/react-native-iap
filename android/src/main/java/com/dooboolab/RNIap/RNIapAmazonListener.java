@@ -127,6 +127,14 @@ public class RNIapAmazonListener implements PurchasingListener {
 
           Log.d(TAG, "onProductDataResponse: Create item from product.");
 
+          Log.d(TAG, "onProductDataResponse: product.getSku(): " + product.getSku());
+          Log.d(TAG, "onProductDataResponse: priceNumber.toString(): " + priceNumber.toString());
+          Log.d(TAG, "onProductDataResponse: product.getPrice(): " + product.getPrice());
+          Log.d(TAG, "onProductDataResponse: product.getTitle(): " + product.getTitle());
+          Log.d(TAG, "onProductDataResponse: product.getDescription(): " + product.getDescription());
+          Log.d(TAG, "onProductDataResponse: product.getSmallIconUrl(): " + product.getSmallIconUrl());
+          Log.d(TAG, "onProductDataResponse: product.toString(): " + product.toString());
+          
           WritableMap item = Arguments.createMap();
           CoinsReward coinsReward = product.getCoinsReward();
           item.putString("productId", product.getSku());
